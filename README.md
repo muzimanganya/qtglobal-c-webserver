@@ -1,84 +1,111 @@
-# QTGlobal C Web Server
+# QT Global C Web Server
 
-Minimal end-to-end HTTP server implemented in C, designed to demonstrate low-level networking, HTTP request handling, logging, and integration with HAProxy for TLS termination. It includes a backup automation script for server logs.
+This project demonstrates a minimal end-to-end system using a C web server with HAProxy TLS termination and automated log backups.
 
-## How to Build and Run the Server
+---
 
-1. Navigate to the server folder:
+## 1. How to Build and Run the Server
 
-```bash
-cd server
-Compile the server:
+### Prerequisites
+- GCC compiler
+- Make
+- Linux environment
 
-bash
-Copier le code
-make
-Run the server (requires root for port 80):
+### Steps
+1. **Clone the repository** (or extract the archive):
+    ```bash
+    git clone <your-repo-link>
+    cd qtglobal-system-test/server
+    ```
 
-bash
-Copier le code
-sudo ./server
-The server will:
+2. **Build the server**:
+    ```bash
+    make
+    ```
+    This compiles the server using:
+    ```bash
+    gcc src/main.c src/logger.c src/config.c -o server
+    ```
 
-Listen on the configured port (default 80)
+3. **Run the server**:
+    ```bash
+    sudo ./server
+    ```
+    > Note: Port 80 requires root privileges; you can change the port in `config/server.conf` if necessary.
 
-Accept GET and POST requests
+4. The server listens for HTTP requests and logs all incoming requests to the configured log file.
 
-Respond with minimal HTML pages:
+---
 
-GET: displays a greeting message
+## 2. How to Test with HAProxy
 
-POST: displays the requested URL
+### Prerequisites
+- HAProxy installed
+- Self-signed TLS certificate generated for `qtglobal.test`
 
-How to Test with HAProxy
-Generate a self-signed TLS certificate for qtglobal.test (certificate files in haproxy/certs/).
+### HAProxy Configuration
+1. Place your certificate at:
+    ```
+    haproxy/certs/qtglobal.test.pem
+    ```
+2. Configure HAProxy (`haproxy/haproxy.cfg`) to terminate TLS and forward traffic to your server:
+    ```bash
+    frontend https_front
+        bind *:443 ssl crt /home/desire/qtglobal-system-test/haproxy/certs/qtglobal.test.pem
+        mode http
+        default_backend http_back
 
-Ensure HAProxy is installed and configured (haproxy/haproxy.cfg) to:
+    backend http_back
+        mode http
+        server c_server 127.0.0.1:80 check
+    ```
 
-Terminate TLS on port 443
+### Test the setup
+- **GET request:**
+    ```bash
+    curl -k https://qtglobal.test/
+    ```
+    Should return:
+    ```html
+    <html><body><h1>Hello from C Web Server</h1></body></html>
+    ```
 
-Forward decrypted HTTP traffic to the C web server
+- **POST request:**
+    ```bash
+    curl -k -X POST https://qtglobal.test/test/url
+    ```
+    Should return:
+    ```html
+    <html><body><h1>Requested URL: /test/url</h1></body></html>
+    ```
 
-Start HAProxy:
+---
 
-bash
-Copier le code
-sudo haproxy -f haproxy/haproxy.cfg
-Test the server via HAProxy:
+## 3. Optional Enhancements (Bonus Points)
+- **Multithreaded or event-driven server**: The server can be enhanced to handle multiple requests concurrently.
+- **Listener/Worker separation**: Separate listening and worker threads/processes for improved scalability.
+- **Graceful shutdown**: Handles `SIGINT` and `SIGTERM` signals to close sockets and exit cleanly.
+- **Configuration files**: Server port, buffer size, and log file paths are loaded from `config/server.conf` instead of hardcoding.
+- **HAProxy security tuning**: Production-ready HAProxy configuration with TLS termination and proper checks.
 
-bash
-Copier le code
-curl -k https://qtglobal.test/
-curl -k -X POST https://qtglobal.test/test/url
-GET request: displays greeting page
+---
 
-POST request: displays requested URL
+## 4. Backup Script
 
-Backup Script (Task B)
-Script location: scripts/backup_logs.sh
+### Location
+`scripts/backup_logs.sh`
 
-Stores compressed backups in /home/backups
+### Features
+- Compresses the server log folder into `/home/backups/YYYY-MM-DD_backup.tar.gz`.
+- Keeps only the last 7 backups.
+- Logs success or failure in `/home/backups/backup.log`.
+- Scheduled with cron to run daily at 2 AM:
+    ```bash
+    0 2 * * * /home/desire/qtglobal-system-test/scripts/backup_logs.sh
+    ```
+- Handles missing directories or permission errors gracefully.
 
-Names backups: YYYY-MM-DD_backup.tar.gz
+---
 
-Keeps only the last 7 backups automatically
+## 5. Folder Structure
 
-Logs operations in /home/backups/backup.log
-
-Scheduled in cron to run daily at 2 AM:
-
-Example cron entry:
-
-cron
-Copier le code
-0 2 * * * /home/desire/qtglobal-system-test/scripts/backup_logs.sh
-Optional Enhancements (Bonus Points)
-Multithreaded or event-driven server
-
-Listener/worker separation and connection pooling
-
-Graceful shutdown / signal handling
-
-Config files instead of hardcoded values
-
-Production-level HAProxy tuning
