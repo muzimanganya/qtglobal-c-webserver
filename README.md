@@ -59,6 +59,11 @@ This project demonstrates a minimal end-to-end system using a C web server with 
         mode http
         server c_server 127.0.0.1:80 check
     ```
+# Example
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+-keyout haproxy/certs/qtglobal.test.key \
+-out haproxy/certs/qtglobal.test.crt
+cat haproxy/certs/qtglobal.test.key haproxy/certs/qtglobal.test.crt > haproxy/certs/qtglobal.test.pem
 
 ### Test the setup
 - **GET request:**
@@ -80,13 +85,17 @@ This project demonstrates a minimal end-to-end system using a C web server with 
     ```
 
 ---
+### Example Self-Signed TLS Certificate
 
-## 3. Optional Enhancements (Bonus Points)
-- **Multithreaded or event-driven server**: The server can be enhanced to handle multiple requests concurrently.
-- **Listener/Worker separation**: Separate listening and worker threads/processes for improved scalability.
-- **Graceful shutdown**: Handles `SIGINT` and `SIGTERM` signals to close sockets and exit cleanly.
-- **Configuration files**: Server port, buffer size, and log file paths are loaded from `config/server.conf` instead of hardcoding.
-- **HAProxy security tuning**: Production-ready HAProxy configuration with TLS termination and proper checks.
+```bash
+# Generate private key and certificate
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout haproxy/certs/qtglobal.test.key \
+  -out haproxy/certs/qtglobal.test.crt
+
+# Combine key and certificate into a PEM file for HAProxy
+cat haproxy/certs/qtglobal.test.key haproxy/certs/qtglobal.test.crt \
+  > haproxy/certs/qtglobal.test.pem
 
 ---
 
@@ -108,11 +117,11 @@ This project demonstrates a minimal end-to-end system using a C web server with 
 ---
 
 ## 5. Folder Structure
-## Folder Structure
+
 
 ```text
 qtglobal-system-test/
-├── Y
+├── README.md
 ├── docs
 ├── haproxy
 │   ├── certs
