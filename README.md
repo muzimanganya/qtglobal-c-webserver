@@ -83,10 +83,17 @@ This project demonstrates a minimal end-to-end system using a C web server with 
 
 
 
-# Combine key and certificate into a PEM file for HAProxy
+### Combine key and certificate into a PEM file for HAProxy
 cat haproxy/certs/qtglobal.test.key haproxy/certs/qtglobal.test.crt \
   > haproxy/certs/qtglobal.test.pem
+Example Self-Signed TLS Certificate
 
+```bash
+#### Example private key and certificate generate
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout haproxy/certs/qtglobal.test.key \
+  -out haproxy/certs/qtglobal.test.crt
+```
 ---
 
 ## 4. Backup Script
