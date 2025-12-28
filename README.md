@@ -59,7 +59,7 @@ This project demonstrates a minimal end-to-end system using a C web server with 
         mode http
         server c_server 127.0.0.1:80 check
     ```
-# Example
+### Example
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 -keyout haproxy/certs/qtglobal.test.key \
 -out haproxy/certs/qtglobal.test.crt
