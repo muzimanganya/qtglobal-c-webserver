@@ -49,13 +49,7 @@ This project demonstrates a minimal end-to-end system using a C web server with 
     haproxy/certs/qtglobal.test.pem
     ```
     ---
-Example Self-Signed TLS Certificate
 
-```bash
-# Generate private key and certificate
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-  -keyout haproxy/certs/qtglobal.test.key \
-  -out haproxy/certs/qtglobal.test.crt
 2. Configure HAProxy (`haproxy/haproxy.cfg`) to terminate TLS and forward traffic to your server:
     ```bash
     frontend https_front
