@@ -2,89 +2,83 @@
 
 Minimal end-to-end HTTP server implemented in C, designed to demonstrate low-level networking, HTTP request handling, logging, and integration with HAProxy for TLS termination. It includes a backup automation script for server logs.
 
-## Project Objective
+## How to Build and Run the Server
 
-Build a small end-to-end system demonstrating:
+1. Navigate to the server folder:
 
-- Low-level networking
-- HTTP request handling
-- TLS termination
-- Reverse proxy configuration
+```bash
+cd server
+Compile the server:
 
-## Folder Structure
+bash
+Copier le code
+make
+Run the server (requires root for port 80):
 
-/qtglobal-system-test
-│
-├── docs/                    # Directory for documentation
-├── haproxy/                 # Directory for HAProxy configuration and certificates
-│   ├── certs/               # Directory containing TLS certificates
-│   │   ├── qtglobal.test.crt    # Self-signed TLS certificate
-│   │   ├── qtglobal.test.key     # Private key for the TLS certificate
-│   │   └── qtglobal.test.pem     # Combined certificate file
-│   └── haproxy.cfg          # Configuration file for HAProxy
-│
-├── scripts/                 # Directory containing scripts
-│   └── backup_logs.sh       # Bash script for creating log backups
-│
-└── server/                  # Directory for the web server source code and configuration
-    ├── Makefile             # Makefile for building the server
-    ├── config/              # Directory for server configuration files
-    │   └── server.conf      # Configuration file for the server
-    ├── logs/                # Directory for server log files
-    │   └── server.log       # Log file for server activities
-    ├── nano.5529.save       # Temporary file (can be ignored)
-    ├── server               # Compiled server binary
-    └── src/                 # Source code files for the server
-        ├── config.c         # Source code for server configuration
-        ├── config.h         # Header file for server configuration
-        ├── logger.c         # Source code for logging functionality
-        ├── logger.h         # Header file for logging functionality
-        └── main.c           # Main entry point for the server application
+bash
+Copier le code
+sudo ./server
+The server will:
 
+Listen on the configured port (default 80)
 
-## Task A – Minimal C Web Server
+Accept GET and POST requests
 
-### Features
+Respond with minimal HTML pages:
 
-- Creates TCP socket using `socket()`.
-- **Binds** to a fixed port (default 80, configurable in `config/server.conf`) using `bind()`.
-- **Listens** for incoming connections with `listen()`.
-- Accepts clients using `accept()`.
-- Reads HTTP requests using `read()`.
-- Parses minimal HTTP to extract:
-  - Method (`GET` or `POST`)
-  - Request URL
-- Responds:
-  - `GET` → HTML page with greeting
-  - `POST` → HTML page showing the requested URL
-  - Other methods → silently close connection
-- Logs requests with `log_request()` function.
-- Graceful shutdown using signals (`SIGINT`, `SIGTERM`).
+GET: displays a greeting message
 
-### Sample Usage
+POST: displays the requested URL
 
-```c
-int server_fd = socket(AF_INET, SOCK_STREAM, 0);
-bind(server_fd, ...);
-listen(server_fd, 5);
-client_fd = accept(server_fd, ...);
-read(client_fd, buffer, sizeof(buffer));
-log_request(method, url);
-write(client_fd, response, strlen(response));
-close(client_fd);
+How to Test with HAProxy
+Generate a self-signed TLS certificate for qtglobal.test (certificate files in haproxy/certs/).
 
-## Task B – Backup Script & Cron
+Ensure HAProxy is installed and configured (haproxy/haproxy.cfg) to:
 
-Script: scripts/backup_logs.sh
+Terminate TLS on port 443
 
-Compresses server logs into /home/backups/YYYY-MM-DD_backup.tar.gz.
+Forward decrypted HTTP traffic to the C web server
 
-Keeps only the last 7 backups, deletes older files.
+Start HAProxy:
 
-Logs each operation to /home/backups/backup.log.
+bash
+Copier le code
+sudo haproxy -f haproxy/haproxy.cfg
+Test the server via HAProxy:
 
-Handles errors gracefully (missing directories, permissions, tar failures).
+bash
+Copier le code
+curl -k https://qtglobal.test/
+curl -k -X POST https://qtglobal.test/test/url
+GET request: displays greeting page
 
-Cron Entry
+POST request: displays requested URL
+
+Backup Script (Task B)
+Script location: scripts/backup_logs.sh
+
+Stores compressed backups in /home/backups
+
+Names backups: YYYY-MM-DD_backup.tar.gz
+
+Keeps only the last 7 backups automatically
+
+Logs operations in /home/backups/backup.log
+
+Scheduled in cron to run daily at 2 AM:
+
+Example cron entry:
+
+cron
+Copier le code
 0 2 * * * /home/desire/qtglobal-system-test/scripts/backup_logs.sh
+Optional Enhancements (Bonus Points)
+Multithreaded or event-driven server
 
+Listener/worker separation and connection pooling
+
+Graceful shutdown / signal handling
+
+Config files instead of hardcoded values
+
+Production-level HAProxy tuning
