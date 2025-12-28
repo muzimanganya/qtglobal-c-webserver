@@ -12,30 +12,35 @@ Build a small end-to-end system demonstrating:
 - Reverse proxy configuration
 
 ## Folder Structure
-qtglobal-system-test/
-├── haproxy
-│   ├── certs
-│   │   ├── qtglobal.test.crt
-│   │   ├── qtglobal.test.key
-│   │   └── qtglobal.test.pem
-│   └── haproxy.cfg
-├── scripts
-│   └── backup_logs.sh
-└── server
-    ├── Makefile
-    ├── config
-    │   └── server.conf
-    ├── logs
-    │   └── server.log
-    ├── nano.5529.save
-    ├── server
-    └── src
-        ├── config.c
-        ├── config.h
-        ├── logger.c
-        ├── logger.h
-        └── main.c
-└── README.md
+
+/qtglobal-system-test
+│
+├── docs/                    # Directory for documentation
+├── haproxy/                 # Directory for HAProxy configuration and certificates
+│   ├── certs/               # Directory containing TLS certificates
+│   │   ├── qtglobal.test.crt    # Self-signed TLS certificate
+│   │   ├── qtglobal.test.key     # Private key for the TLS certificate
+│   │   └── qtglobal.test.pem     # Combined certificate file
+│   └── haproxy.cfg          # Configuration file for HAProxy
+│
+├── scripts/                 # Directory containing scripts
+│   └── backup_logs.sh       # Bash script for creating log backups
+│
+└── server/                  # Directory for the web server source code and configuration
+    ├── Makefile             # Makefile for building the server
+    ├── config/              # Directory for server configuration files
+    │   └── server.conf      # Configuration file for the server
+    ├── logs/                # Directory for server log files
+    │   └── server.log       # Log file for server activities
+    ├── nano.5529.save       # Temporary file (can be ignored)
+    ├── server               # Compiled server binary
+    └── src/                 # Source code files for the server
+        ├── config.c         # Source code for server configuration
+        ├── config.h         # Header file for server configuration
+        ├── logger.c         # Source code for logging functionality
+        ├── logger.h         # Header file for logging functionality
+        └── main.c           # Main entry point for the server application
+
 
 ## Task A – Minimal C Web Server
 
