@@ -108,4 +108,32 @@ This project demonstrates a minimal end-to-end system using a C web server with 
 ---
 
 ## 5. Folder Structure
+## Folder Structure
+
+```text
+qtglobal-system-test/
+├── Y
+├── docs
+├── haproxy
+│   ├── certs
+│   │   ├── qtglobal.test.crt
+│   │   ├── qtglobal.test.key
+│   │   └── qtglobal.test.pem
+│   └── haproxy.cfg
+├── scripts
+│   └── backup_logs.sh
+└── server
+    ├── Makefile
+    ├── config
+    │   └── server.conf
+    ├── logs
+    │   └── server.log
+    ├── nano.5529.save
+    ├── server
+    └── src
+        ├── config.c
+        ├── config.h
+        ├── logger.c
+        ├── logger.h
+        └── main.c
 
